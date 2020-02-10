@@ -34,6 +34,9 @@
 #include "stm32f411xe.h"
 #include <assert.h>
 
+/**
+ * Redefinition of NULL macro in case stdlib isn't used by the rest of the project
+ */
 #ifndef NULL
 #define NULL (void*) 0
 #endif

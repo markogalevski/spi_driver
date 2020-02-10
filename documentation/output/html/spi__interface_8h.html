@@ -147,7 +147,7 @@ Enumerations</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a055bf4d0946748735ec7769da2927a25"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="spi__interface_8h.html#a055bf4d0946748735ec7769da2927a25">spi_init</a> (<a class="el" href="structspi__config__t.html">spi_config_t</a> *config_table)</td></tr>
+<tr class="memitem:a055bf4d0946748735ec7769da2927a25"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="spi__interface_8h.html#a055bf4d0946748735ec7769da2927a25">spi_init</a> (<a class="el" href="structspi__config__t.html">spi_config_t</a> *<a class="el" href="spi__stm32f411__config_8c.html#a844a55dbb17fff84cddf277c8c858c54">config_table</a>)</td></tr>
 <tr class="separator:a055bf4d0946748735ec7769da2927a25"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a545b91b82e6ce4fa34861f84339a5869"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="spi__interface_8h.html#a545b91b82e6ce4fa34861f84339a5869">spi_transfer</a> (<a class="el" href="structspi__transfer__t.html">spi_transfer_t</a> *transfer)</td></tr>
 <tr class="separator:a545b91b82e6ce4fa34861f84339a5869"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -310,7 +310,7 @@ in the config table
 </pre><p>PRE-CONDITION: The config table has been obtained and is non-null PRE-CONDITION: The required GPIO pins for the spi combination have been configured correctly with gpio_init PRE-CONDITION: The appropriate peripheral clocks have been activated</p>
 <p>POST-CONDITION: The selected spi channels have been activated and ready to be used</p>
 <dl class="section return"><dt>Returns</dt><dd>void</dd></dl>
-<p><b>Example:</b> </p><div class="fragment"><div class="line"><span class="keyword">const</span> <a class="code" href="structspi__config__t.html">spi_config_t</a> *config_table = <a class="code" href="spi__stm32f411__config_8c.html#a3df95761ccc301d416841d7910bb2c8a">spi_config_get</a>();</div><div class="line"><a class="code" href="spi__interface_8h.html#a055bf4d0946748735ec7769da2927a25">spi_init</a>(config_table);</div></div><!-- fragment --><dl class="section see"><dt>See also</dt><dd><a class="el" href="spi__stm32f411__config_8h.html#a3df95761ccc301d416841d7910bb2c8a">spi_config_get</a> <br />
+<p><b>Example:</b> </p><div class="fragment"><div class="line"><span class="keyword">const</span> <a class="code" href="structspi__config__t.html">spi_config_t</a> *<a class="code" href="spi__stm32f411__config_8c.html#a844a55dbb17fff84cddf277c8c858c54">config_table</a> = <a class="code" href="spi__stm32f411__config_8c.html#a3df95761ccc301d416841d7910bb2c8a">spi_config_get</a>();</div><div class="line"><a class="code" href="spi__interface_8h.html#a055bf4d0946748735ec7769da2927a25">spi_init</a>(config_table);</div></div><!-- fragment --><dl class="section see"><dt>See also</dt><dd><a class="el" href="spi__stm32f411__config_8h.html#a3df95761ccc301d416841d7910bb2c8a">spi_config_get</a> <br />
 <b> - CHANGE HISTORY - </b></dd></dl>
 <table align="left" style="width:800px">
 <tr>

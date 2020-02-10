@@ -6,6 +6,7 @@ var NAVTREEINDEX0 =
 "functions.html":[1,2,0],
 "functions_vars.html":[1,2,1],
 "globals.html":[2,1,0],
+"globals_defs.html":[2,1,6],
 "globals_enum.html":[2,1,4],
 "globals_eval.html":[2,1,5],
 "globals_func.html":[2,1,1],

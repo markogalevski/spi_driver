@@ -32,6 +32,9 @@
  */
 #include "spi_stm32f411_config.h"
 
+/**
+ * Config table containing peripheral wide options for each spi device on chip
+ */
 static const spi_config_t config_table[NUM_SPI] =
 {				//ENABLED			//MASTER		//SS_MODE			//BIDIR			//BAUD
 									//SLAVE												//RATE

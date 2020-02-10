@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['aflhry_5fwidth',['AFLHRy_WIDTH',['../gpio__stm32f411_8c.html#a5f7ff5c93c31db6930004969c20b6e7b',1,'gpio_stm32f411.c']]]
+  ['null',['NULL',['../spi__stm32f411_8c.html#a070d2ce7b6bb7e5c05602aa8c308d0c4',1,'spi_stm32f411.c']]]
 ];

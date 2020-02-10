@@ -107,7 +107,7 @@ Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
-<tr class="memitem:a844a55dbb17fff84cddf277c8c858c54"><td class="memItemLeft" align="right" valign="top">static const <a class="el" href="structspi__config__t.html">spi_config_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>config_table</b> [NUM_SPI]</td></tr>
+<tr class="memitem:a844a55dbb17fff84cddf277c8c858c54"><td class="memItemLeft" align="right" valign="top">static const <a class="el" href="structspi__config__t.html">spi_config_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="spi__stm32f411__config_8c.html#a844a55dbb17fff84cddf277c8c858c54">config_table</a> [NUM_SPI]</td></tr>
 <tr class="separator:a844a55dbb17fff84cddf277c8c858c54"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -131,7 +131,7 @@ Variables</h2></td></tr>
 <p><b>Description:</b> </p><pre class="fragment">Returns a pointer to the base of the configuration table for spi peripherals
 </pre><p>PRE-CONDITION: The config table has been filled out and is non-null</p>
 <dl class="section return"><dt>Returns</dt><dd>*spi_config_t</dd></dl>
-<p><b>Example:</b> </p><div class="fragment"><div class="line"><span class="keyword">const</span> <a class="code" href="structspi__config__t.html">spi_config_t</a> *config_table = <a class="code" href="spi__stm32f411__config_8c.html#a3df95761ccc301d416841d7910bb2c8a">spi_config_get</a>();</div><div class="line"><a class="code" href="spi__interface_8h.html#a055bf4d0946748735ec7769da2927a25">spi_init</a>(config_table);</div></div><!-- fragment --><dl class="section see"><dt>See also</dt><dd><a class="el" href="spi__stm32f411_8c.html#a055bf4d0946748735ec7769da2927a25">spi_init</a> <br />
+<p><b>Example:</b> </p><div class="fragment"><div class="line"><span class="keyword">const</span> <a class="code" href="structspi__config__t.html">spi_config_t</a> *<a class="code" href="spi__stm32f411__config_8c.html#a844a55dbb17fff84cddf277c8c858c54">config_table</a> = <a class="code" href="spi__stm32f411__config_8c.html#a3df95761ccc301d416841d7910bb2c8a">spi_config_get</a>();</div><div class="line"><a class="code" href="spi__interface_8h.html#a055bf4d0946748735ec7769da2927a25">spi_init</a>(config_table);</div></div><!-- fragment --><dl class="section see"><dt>See also</dt><dd><a class="el" href="spi__stm32f411_8c.html#a055bf4d0946748735ec7769da2927a25">spi_init</a> <br />
 <b> - CHANGE HISTORY - </b></dd></dl>
 <table align="left" style="width:800px">
 <tr>
@@ -163,7 +163,8 @@ Variables</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<b>Initial value:</b><div class="fragment"><div class="line">=</div><div class="line">{               </div><div class="line">                                    </div><div class="line">        {},</div><div class="line">        {},</div><div class="line">        {},</div><div class="line">        {},</div><div class="line">        {}</div><div class="line">}</div></div><!-- fragment -->
+<b>Initial value:</b><div class="fragment"><div class="line">=</div><div class="line">{               </div><div class="line">                                    </div><div class="line">        {},</div><div class="line">        {},</div><div class="line">        {},</div><div class="line">        {},</div><div class="line">        {}</div><div class="line">}</div></div><!-- fragment --><p>Config table containing peripheral wide options for each spi device on chip </p>
+
 </div>
 </div>
 </div><!-- contents -->
