@@ -1,10 +1,28 @@
 var searchData=
 [
   ['spi_5fconfig_5fget',['spi_config_get',['../spi__stm32f411__config_8c.html#a3df95761ccc301d416841d7910bb2c8a',1,'spi_config_get(void):&#160;spi_stm32f411_config.c'],['../spi__stm32f411__config_8h.html#a3df95761ccc301d416841d7910bb2c8a',1,'spi_config_get(void):&#160;spi_stm32f411_config.c']]],
+  ['spi_5fconfigure_5fclock',['spi_configure_clock',['../spi__stm32f411_8c.html#a2424aa65dc255ad8a6107d567962ab0b',1,'spi_stm32f411.c']]],
+  ['spi_5fconfigure_5fdata_5fframe',['spi_configure_data_frame',['../spi__stm32f411_8c.html#a9fa7b58103a8841ddeede477c087a30c',1,'spi_stm32f411.c']]],
   ['spi_5finit',['spi_init',['../spi__interface_8h.html#a055bf4d0946748735ec7769da2927a25',1,'spi_init(spi_config_t *config_table):&#160;spi_stm32f411.c'],['../spi__stm32f411_8c.html#a055bf4d0946748735ec7769da2927a25',1,'spi_init(spi_config_t *config_table):&#160;spi_stm32f411.c']]],
   ['spi_5firq_5fhandler',['spi_irq_handler',['../spi__interface_8h.html#a9296275f98ede8254a9676e6815a0b66',1,'spi_irq_handler(spi_channel_t channel):&#160;spi_stm32f411.c'],['../spi__stm32f411_8c.html#a9296275f98ede8254a9676e6815a0b66',1,'spi_irq_handler(spi_channel_t channel):&#160;spi_stm32f411.c']]],
   ['spi_5fregister_5fread',['spi_register_read',['../spi__interface_8h.html#a7ab3113e47f877de83eba62cbdceac51',1,'spi_register_read(uint32_t spi_register):&#160;spi_stm32f411.c'],['../spi__stm32f411_8c.html#a7ab3113e47f877de83eba62cbdceac51',1,'spi_register_read(uint32_t spi_register):&#160;spi_stm32f411.c']]],
   ['spi_5fregister_5fwrite',['spi_register_write',['../spi__interface_8h.html#a5c1d44c4f8ca993e20cabfc6db33552b',1,'spi_register_write(uint32_t spi_register, uint16_t value):&#160;spi_stm32f411.c'],['../spi__stm32f411_8c.html#a5c1d44c4f8ca993e20cabfc6db33552b',1,'spi_register_write(uint32_t spi_register, uint16_t value):&#160;spi_stm32f411.c']]],
+  ['spi_5frelease_5fslave',['spi_release_slave',['../spi__stm32f411_8c.html#ab41ec660c61902c9cd799cbea2c67d6a',1,'spi_stm32f411.c']]],
+  ['spi_5fselect_5fslave',['spi_select_slave',['../spi__stm32f411_8c.html#a44ff4c446694b5e5d29fcf604111fd77',1,'spi_stm32f411.c']]],
   ['spi_5ftransfer',['spi_transfer',['../spi__interface_8h.html#a545b91b82e6ce4fa34861f84339a5869',1,'spi_transfer(spi_transfer_t *transfer):&#160;spi_stm32f411.c'],['../spi__stm32f411_8c.html#a545b91b82e6ce4fa34861f84339a5869',1,'spi_transfer(spi_transfer_t *transfer):&#160;spi_stm32f411.c']]],
-  ['spi_5ftransfer_5fit',['spi_transfer_it',['../spi__interface_8h.html#a1e74442e174bfedbc5b87b899365f330',1,'spi_transfer_it(spi_transfer_t *transfer):&#160;spi_stm32f411.c'],['../spi__stm32f411_8c.html#a1e74442e174bfedbc5b87b899365f330',1,'spi_transfer_it(spi_transfer_t *transfer):&#160;spi_stm32f411.c']]]
+  ['spi_5ftransfer_5fbidir',['spi_transfer_bidir',['../spi__stm32f411_8c.html#aa11f6b28cd5b8c032270047b105a1278',1,'spi_stm32f411.c']]],
+  ['spi_5ftransfer_5fbidir_5freceive',['spi_transfer_bidir_receive',['../spi__stm32f411_8c.html#a2625a6be2374f6a391db7432b98a5d13',1,'spi_stm32f411.c']]],
+  ['spi_5ftransfer_5fbidir_5ftransmit',['spi_transfer_bidir_transmit',['../spi__stm32f411_8c.html#a53284ec79066e97878b4dd1b48d51f03',1,'spi_stm32f411.c']]],
+  ['spi_5ftransfer_5ffull_5fduplex',['spi_transfer_full_duplex',['../spi__stm32f411_8c.html#a118ff8c54decaf3b64a1ff400df0e8dc',1,'spi_stm32f411.c']]],
+  ['spi_5ftransfer_5ffull_5fduplex_5fmaster',['spi_transfer_full_duplex_master',['../spi__stm32f411_8c.html#a2fce2943b044eeb3b66aab3fd870e765',1,'spi_stm32f411.c']]],
+  ['spi_5ftransfer_5ffull_5fduplex_5frxonly',['spi_transfer_full_duplex_rxonly',['../spi__stm32f411_8c.html#a45083c9a81f2fa684f25bbf16a67ce7d',1,'spi_stm32f411.c']]],
+  ['spi_5ftransfer_5ffull_5fduplex_5fslave',['spi_transfer_full_duplex_slave',['../spi__stm32f411_8c.html#a792258cece34f621851297d538c15801',1,'spi_stm32f411.c']]],
+  ['spi_5ftransfer_5fit',['spi_transfer_it',['../spi__interface_8h.html#a1e74442e174bfedbc5b87b899365f330',1,'spi_transfer_it(spi_transfer_t *transfer):&#160;spi_stm32f411.c'],['../spi__stm32f411_8c.html#a1e74442e174bfedbc5b87b899365f330',1,'spi_transfer_it(spi_transfer_t *transfer):&#160;spi_stm32f411.c']]],
+  ['spi_5ftransfer_5fit_5fbidir',['spi_transfer_it_bidir',['../spi__stm32f411_8c.html#af1dcdcdbacf5c858da664d5491c5c992',1,'spi_stm32f411.c']]],
+  ['spi_5ftransfer_5fit_5fbidir_5freceive_5fcallback',['spi_transfer_it_bidir_receive_callback',['../spi__stm32f411_8c.html#ad4f06203d93ef0527f4cbe73fe6035d5',1,'spi_stm32f411.c']]],
+  ['spi_5ftransfer_5fit_5fbidir_5ftransmit_5fcallback',['spi_transfer_it_bidir_transmit_callback',['../spi__stm32f411_8c.html#a403ffe5be220041a198bae2a882d34e1',1,'spi_stm32f411.c']]],
+  ['spi_5ftransfer_5fit_5ffull_5fduplex',['spi_transfer_it_full_duplex',['../spi__stm32f411_8c.html#a49ac464e3126935270405747f94e4456',1,'spi_stm32f411.c']]],
+  ['spi_5ftransfer_5fit_5ffull_5fduplex_5fcallback',['spi_transfer_it_full_duplex_callback',['../spi__stm32f411_8c.html#adf9549d40eeebad125ddab1b02c6d164',1,'spi_stm32f411.c']]],
+  ['spi_5ftransfer_5fit_5ffull_5fduplex_5frxonly',['spi_transfer_it_full_duplex_rxonly',['../spi__stm32f411_8c.html#a28137256dc0a370da0432564df493dd6',1,'spi_stm32f411.c']]],
+  ['spi_5ftransfer_5fit_5ffull_5fduplex_5frxonly_5fcallback',['spi_transfer_it_full_duplex_rxonly_callback',['../spi__stm32f411_8c.html#a71bb9ba8f5ea926b67276dbac88944d1',1,'spi_stm32f411.c']]]
 ];

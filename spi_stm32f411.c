@@ -224,6 +224,7 @@ void spi_init(spi_config_t *config_table)
 * PRE-CONDITION: gpio_init() has been called for the slave select pin to configure it as an output/input,
 * 					depending on desired direction
 * PRE-CONDITION: The proper data buffers and lengths are non-null/non-zero
+* PRE-CONDITION: The transfer pointer is non-null
 *
 * POST-CONDITION: The desired transfer has been successfully carried out
 *
@@ -258,6 +259,7 @@ void spi_init(spi_config_t *config_table)
 *******************************************************************************/
 void spi_transfer(spi_transfer_t *transfer)
 {
+	assert(transfer != NULL);
 	spi_configure_clock(transfer);
 	spi_configure_data_frame(transfer);
 	uint16_t CR1_state = *SPI_CR1[transfer->channel];
@@ -291,12 +293,13 @@ void spi_transfer(spi_transfer_t *transfer)
 }
 
 /******************************************************************************
-* Function: spi_transfer()
+* Function: spi_transfer_it()
 *//**
 * \b Description:
 *
 * 	Sets up an interrupt based spi transfer according to the specifications of
-* 	 the transfer parameter.
+* 	 the transfer parameter. Makes a safe copy of the transfer structure and
+* 	 calls a function to map the correct callback
 *
 *
 *
@@ -304,8 +307,10 @@ void spi_transfer(spi_transfer_t *transfer)
 * PRE-CONDITION: gpio_init() has been called for the slave select pin to configure it as an output/input,
 * 					depending on desired direction
 * PRE-CONDITION: The proper data buffers and lengths are non-null/non-zero
+* PRE-CONDITION: The transfer pointer is non-NULL
 *
 * POST-CONDITION: The irq handler will now handle the rest of the transfer
+* POST-CONDITION: A safe copy of the transfer structure has been placed in the static file-wide buffer
 *
 *
 * @return 		void
@@ -339,6 +344,8 @@ void spi_transfer(spi_transfer_t *transfer)
 *******************************************************************************/
 void spi_transfer_it(spi_transfer_t *transfer)
 {
+	assert(transfer != NULL);
+	spi_interrupt_transfers[transfer->channel] = *transfer;
 	spi_configure_clock(transfer);
 	spi_configure_data_frame(transfer);
 
@@ -472,6 +479,39 @@ uint16_t spi_register_read(uint32_t spi_register)
 	return ( *((uint16_t *)spi_register));
 }
 
+/******************************************************************************
+* Function: spi_transfer_bidir()
+*//**
+* \b Description:
+*
+*	A static function called auomatically by spi_transfer when appropriate
+*	which subsequently simply calls the appropriate transfer subroutine
+*	based on transfer direction
+*
+* PRE-CONDITION: (Soft assertion) The pointer to the data buffer to be transferred
+* 					is non-NULL. Failure of this check results in an uneventful return
+*
+* POST-CONDITION: The data has been transferred as specified in the transfer parameter
+* 					by the subroutine.
+*
+* @param		transfer a pointer to the transfer structure containing all relevant
+* 					information for the transmission
+* @return 		void
+*
+* \b Example:
+*	Called automatically by spi_transfer when BIDIMODE == 1
+*
+* @see spi_transfer_bidir_transmit
+* @see spi_transfer_bidir_receive
+* @see spi_transfer_full_duplex_rxonly
+* @see spi_transfer_full_duplex
+* <br><b> - CHANGE HISTORY - </b>
+*
+* <table align="left" style="width:800px">
+* <tr><td> Date       </td><td> Software Version </td><td> Initials </td><td> Description </td></tr>
+* </table><br><br>
+* <hr>
+*******************************************************************************/
 static void spi_transfer_bidir(spi_transfer_t *transfer)
 {
 	uint16_t CR1_state = *SPI_CR1[transfer->channel];
@@ -494,7 +534,38 @@ static void spi_transfer_bidir(spi_transfer_t *transfer)
 	}
 }
 
-
+/******************************************************************************
+* Function: spi_transfer_bidir_transmit()
+*//**
+* \b Description:
+*
+*	A static function called automatically by spi_transfer_bidir when the single
+*	data line is being used to send information
+*
+* PRE-CONDITION: (Soft assertion) The length of the data buffer is non-NULL.
+* 					Failure of this check simply ends the function
+*
+* POST-CONDITION: Transmits the data in tx_buffer to the selected slave
+*
+* @param		transfer a pointer to the transfer structure containing all relevant
+* 					information for the transmission
+* @return 		void
+*
+* \b Example:
+*	Called automatically by spi_transfer when BIDIMODE == 1 && BIDIOE != 0
+*
+* @see spi_transfer_bidir
+* @see spi_transfer_bidir_receive
+* @see spi_transfer_bidir_it
+* @see spi_transfer_bidir_transmit_it
+* @see spi_transfer_bidir_receive_it
+* <br><b> - CHANGE HISTORY - </b>
+*
+* <table align="left" style="width:800px">
+* <tr><td> Date       </td><td> Software Version </td><td> Initials </td><td> Description </td></tr>
+* </table><br><br>
+* <hr>
+*******************************************************************************/
 static void spi_transfer_bidir_transmit(spi_transfer_t *transfer)
 {
 	uint16_t SR_state;
@@ -523,6 +594,38 @@ static void spi_transfer_bidir_transmit(spi_transfer_t *transfer)
 	} while((SR_state & SPI_SR_BSY_Msk) != 0);
 }
 
+/******************************************************************************
+* Function: spi_transfer_bidir_receive()
+*//**
+* \b Description:
+*
+*	A static function called automatically by spi_transfer_bidir when the single
+*	data line is being used to receive information
+*
+* PRE-CONDITION: (Soft assertion) The length of the data buffer is non-NULL.
+* 					Failure of this check simply skips the function
+*
+* POST-CONDITION: Places received spi data in the rx_buffer
+*
+* @param		transfer a pointer to the transfer structure containing all relevant
+* 					information for the transmission
+* @return 		void
+*
+* \b Example:
+*	Called automatically by spi_transfer when BIDIMODE == 1 && BIDIOE == 0
+*
+* @see spi_transfer_bidir
+* @see spi_transfer_bidir_transmit
+* @see spi_transfer_bidir_it
+* @see spi_transfer_bidir_transmit_it
+* @see spi_transfer_bidir_receive_it
+* <br><b> - CHANGE HISTORY - </b>
+*
+* <table align="left" style="width:800px">
+* <tr><td> Date       </td><td> Software Version </td><td> Initials </td><td> Description </td></tr>
+* </table><br><br>
+* <hr>
+*******************************************************************************/
 static void spi_transfer_bidir_receive(spi_transfer_t *transfer)
 {
 	uint16_t SR_state;
@@ -539,6 +642,37 @@ static void spi_transfer_bidir_receive(spi_transfer_t *transfer)
 	}
 }
 
+/******************************************************************************
+* Function: spi_transfer_full_duplex_rxonly()
+*//**
+* \b Description:
+*
+*	A static function called automatically by spi_transfer when only the MISO line
+*	is being used to receive data
+*
+* PRE-CONDITION: (Soft assertion) The address and length of the data buffer are non-NULL.
+* 					Failure of this check simply results in a meaningless return
+*
+* POST-CONDITION: The received data is placed in rx_buffer
+*
+* @param		transfer a pointer to the transfer structure containing all relevant
+* 					information for the transmission
+* @return 		void
+*
+* \b Example:
+*	Called automatically by spi_transfer when RX_ONLY == 1
+*
+* @see spi_transfer
+* @see spi_transfer_bidir
+* @see spi_transfer_full_duplex
+*
+* <br><b> - CHANGE HISTORY - </b>
+*
+* <table align="left" style="width:800px">
+* <tr><td> Date       </td><td> Software Version </td><td> Initials </td><td> Description </td></tr>
+* </table><br><br>
+* <hr>
+*******************************************************************************/
 static void spi_transfer_full_duplex_rxonly(spi_transfer_t *transfer)
 {
 	if (transfer->rx_buffer == NULL)
@@ -562,7 +696,39 @@ static void spi_transfer_full_duplex_rxonly(spi_transfer_t *transfer)
 	} while((SR_state & SPI_SR_BSY) != 0);
 }
 
-
+/******************************************************************************
+* Function: spi_transfer_full_duplex()
+*//**
+* \b Description:
+*
+*	A static function called automatically by spi_transfer when the spi is configured
+*	with two data lines. It boots a subroutine dependent on whether or not the spi is
+*	configured in master or slave mode
+*
+* PRE-CONDITION: (Soft assertion) The address and length of the data buffer are non-NULL.
+* 					Failure of this check simply results in a meaningless return
+*
+* POST-CONDITION: All data in the tx_buffer has been sent to the selected slave
+* POST-CONDITION: All received data has been placed in the rx_buffer
+*
+* @param		transfer a pointer to the transfer structure containing all relevant
+* 					information for the transmission
+* @return 		void
+*
+* \b Example:
+*	Called automatically by spi_transfer when no other special transfer modes are valid
+*
+* @see spi_transfer
+* @see spi_transfer_bidir
+* @see spi_transfer_full_duplex_rxonly
+*
+* <br><b> - CHANGE HISTORY - </b>
+*
+* <table align="left" style="width:800px">
+* <tr><td> Date       </td><td> Software Version </td><td> Initials </td><td> Description </td></tr>
+* </table><br><br>
+* <hr>
+*******************************************************************************/
 static void spi_transfer_full_duplex(spi_transfer_t *transfer)
 {
 	if (transfer->tx_buffer == NULL || transfer->rx_buffer == NULL)
@@ -580,8 +746,42 @@ static void spi_transfer_full_duplex(spi_transfer_t *transfer)
 	}
 }
 
+/******************************************************************************
+* Function: spi_transfer_full_duplex_master()
+*//**
+* \b Description:
+*
+*	A static function called automatically by spi_transfer_full_duplex when the spi
+*	is configured as a master with two data lines.
+*
+* PRE-CONDITION: The tx_buffer is non-NULL and of non-zero length
+* PRE-CONDITION: The rx_buffer is non-NULL and of non-zero length
+*
+* POST-CONDITION: All data in the tx_buffer has been sent to the selected slave
+* POST-CONDITION: All received data has been placed in the rx_buffer
+*
+* @param		transfer a pointer to the transfer structure containing all relevant
+* 					information for the transmission
+* @return 		void
+*
+* \b Example:
+*	Called automatically by spi_transfer when no other special transfer modes are valid
+*
+* @see spi_transfer
+* @see spi_transfer_full_duplex
+* @see spi_transfer_full_duplex_slave
+*
+* <br><b> - CHANGE HISTORY - </b>
+*
+* <table align="left" style="width:800px">
+* <tr><td> Date       </td><td> Software Version </td><td> Initials </td><td> Description </td></tr>
+* </table><br><br>
+* <hr>
+*******************************************************************************/
 static void spi_transfer_full_duplex_master(spi_transfer_t *transfer)
 {
+	assert(transfer->tx_buffer != NULL && transfer->tx_length != 0);
+	assert(transfer->rx_buffer != NULL && transfer->rx_length != 0);
 	uint16_t SR_state;
 	*SPI_DR[transfer->channel] = *transfer->tx_buffer;
 	transfer->tx_buffer++;
@@ -627,6 +827,38 @@ static void spi_transfer_full_duplex_master(spi_transfer_t *transfer)
 	} while((SR_state & SPI_SR_BSY_Msk) != 0);
 }
 
+/******************************************************************************
+* Function: spi_transfer_full_duplex_slave()
+*//**
+* \b Description:
+*
+*	A static function called automatically by spi_transfer_full_duplex when the spi
+*	is configured as a slave with two data lines.
+*
+* PRE-CONDITION: The tx_buffer is non-NULL and of non-zero length
+* PRE-CONDITION: The rx_buffer is non-NULL and of non-zero length
+*
+* POST-CONDITION: All data in the tx_buffer has been sent to the master
+* POST-CONDITION: All received data has been placed in the rx_buffer
+*
+* @param		transfer a pointer to the transfer structure containing all relevant
+* 					information for the transmission
+* @return 		void
+*
+* \b Example:
+*	Called automatically by spi_transfer when no other special transfer modes are valid
+*
+* @see spi_transfer
+* @see spi_transfer_full_duplex
+* @see spi_transfer_full_duplex_master
+*
+* <br><b> - CHANGE HISTORY - </b>
+*
+* <table align="left" style="width:800px">
+* <tr><td> Date       </td><td> Software Version </td><td> Initials </td><td> Description </td></tr>
+* </table><br><br>
+* <hr>
+*******************************************************************************/
 static void spi_transfer_full_duplex_slave(spi_transfer_t *transfer)
 {
 	uint16_t SR_state;
@@ -679,7 +911,40 @@ static void spi_transfer_full_duplex_slave(spi_transfer_t *transfer)
 			}while((SR_state & SPI_SR_BSY_Msk) != 0);
 }
 
-
+/******************************************************************************
+* Function: spi_transfer_it_bidir_transmit_callback()
+*//**
+* \b Description:
+*
+*	A static callback mapped to the irq handler by spi_transfer_bidir_it and
+*	called by the irq handler. Handles the transmission of a single
+*	data unit or ends the communication and releases the slave.
+*
+* PRE-CONDITION: The tx_buffer is of non-zero length
+*
+* POST-CONDITION: A single data unit has been sent to the target
+* OR
+* POST-CONDITION: The communication has been ended and the slave released
+*
+* @param		transfer a pointer to the transfer structure containing all relevant
+* 					information for the transmission
+* @return 		void
+*
+* \b Example:
+*	Registered when appropriate by spi_transfer_it_bidir and called
+*	by the spi_irq_handler
+*
+* @see spi_transfer_it
+* @see spi_transfer_it_bidir
+* @see spi_irq_handler
+* @see spi_transfer_it_full_duplex
+* <br><b> - CHANGE HISTORY - </b>
+*
+* <table align="left" style="width:800px">
+* <tr><td> Date       </td><td> Software Version </td><td> Initials </td><td> Description </td></tr>
+* </table><br><br>
+* <hr>
+*******************************************************************************/
 static void spi_transfer_it_bidir_transmit_callback(spi_transfer_t *transfer)
 {
 	uint16_t SR_state = *SPI_SR[transfer->channel];
@@ -697,6 +962,40 @@ static void spi_transfer_it_bidir_transmit_callback(spi_transfer_t *transfer)
 	}
 }
 
+/******************************************************************************
+* Function: spi_transfer_it_bidir_receive_callback()
+*//**
+* \b Description:
+*
+*	A static callback mapped to the irq handler by spi_transfer_bidir_it and
+*	called by the irq handler. Handles the reception of a single
+*	data unit or ends the communication and releases the slave.
+*
+* PRE-CONDITION: The rx_buffer is of non-zero length
+*
+* POST-CONDITION: A single data unit has been received from the target
+* OR
+* POST-CONDITION: The communication has been ended and the slave released
+*
+* @param		transfer a pointer to the transfer structure containing all relevant
+* 					information for the transmission
+* @return 		void
+*
+* \b Example:
+*	Registered when appropriate by spi_transfer_it_bidir and called
+*	by the spi_irq_handler
+*
+* @see spi_transfer_it
+* @see spi_transfer_it_bidir
+* @see spi_transfer_it_full_duplex
+* @see spi_irq_handler
+* <br><b> - CHANGE HISTORY - </b>
+*
+* <table align="left" style="width:800px">
+* <tr><td> Date       </td><td> Software Version </td><td> Initials </td><td> Description </td></tr>
+* </table><br><br>
+* <hr>
+*******************************************************************************/
 static void spi_transfer_it_bidir_receive_callback(spi_transfer_t *transfer)
 {
 	uint16_t SR_state = *SPI_SR[transfer->channel];
@@ -714,6 +1013,44 @@ static void spi_transfer_it_bidir_receive_callback(spi_transfer_t *transfer)
 	}
 }
 
+/******************************************************************************
+* Function: spi_transfer_it_bidir()
+*//**
+* \b Description:
+*
+*	Maps the appropriate bidir callback and makes a safe copy of the transfer
+*	structure.
+*
+* PRE-CONDITION: (Soft Assert) The tx_buffer is non-NULL and of non-zero length
+* OR
+* PRE-CONDITION: (Soft Assert) The rx_buffer is non-NULL and of non-zero length
+*
+* POST-CONDITION: The correct callback function has been mapped to the file-scope
+* 					callback array
+* POST-CONDITION: The correct buffer interrupt (RXNEIE or TXEIE) has been enabled
+* POST-CONDITION: The SPI Enable (SPE) has been switched on
+*
+* @param		transfer a pointer to the transfer structure containing all relevant
+* 					information for the transmission
+* @return 		void
+*
+* \b Example:
+*	Called by spi_transfer_it when BIDIMODE == 1
+*
+*
+* @see spi_transfer_it
+* @see spi_transfer_it_bidir_transmit_callback
+* @see spi_transfer_it_bidir_receive_callback
+* @see spi_transfer_it_full_duplex
+*
+* @see spi_irq_handler
+* <br><b> - CHANGE HISTORY - </b>
+*
+* <table align="left" style="width:800px">
+* <tr><td> Date       </td><td> Software Version </td><td> Initials </td><td> Description </td></tr>
+* </table><br><br>
+* <hr>
+*******************************************************************************/
 static void spi_transfer_it_bidir(spi_transfer_t *transfer)
 {
 	uint16_t CR1_state = *SPI_CR1[transfer->channel];
@@ -723,7 +1060,7 @@ static void spi_transfer_it_bidir(spi_transfer_t *transfer)
 		{
 			return;
 		}
-		spi_interrupt_transfers[transfer->channel] = *transfer;
+
 		spi_interrupt_callbacks[transfer->channel] = spi_transfer_it_bidir_transmit_callback;
 		*SPI_CR2[transfer->channel] |= SPI_CR2_TXEIE_Msk;
 	}
@@ -733,7 +1070,6 @@ static void spi_transfer_it_bidir(spi_transfer_t *transfer)
 		{
 			return;
 		}
-		spi_interrupt_transfers[transfer->channel] = *transfer;
 		spi_interrupt_callbacks[transfer->channel] = spi_transfer_it_bidir_receive_callback;
 		*SPI_CR2[transfer->channel] |= SPI_CR2_RXNEIE_Msk;
 	}
@@ -742,6 +1078,39 @@ static void spi_transfer_it_bidir(spi_transfer_t *transfer)
 
 }
 
+/******************************************************************************
+* Function: spi_transfer_it_full_duplex_rxonly_callback()
+*//**
+* \b Description:
+*
+*	A callback function called by the irq handler which manages the reception
+*	of a single data unit when the spi has two data lines.
+*
+* PRE-CONDITION: (Soft Assert) The rx_buffer is of non-zero length
+*
+* POST-CONDITION: A single data unit has been received
+* OR
+* POST-CONDITION: The communication has been shut down and the slave released
+*
+* @param		transfer a pointer to the transfer structure containing all relevant
+* 					information for the transmission
+* @return 		void
+*
+* \b Example:
+*	Called by the irq_handler if it's mapped
+*
+*
+* @see spi_transfer_it
+* @see spi_transfer_it_bidir
+* @see spi_transfer_it_full_duplex
+* @see spi_irq_handler
+* <br><b> - CHANGE HISTORY - </b>
+*
+* <table align="left" style="width:800px">
+* <tr><td> Date       </td><td> Software Version </td><td> Initials </td><td> Description </td></tr>
+* </table><br><br>
+* <hr>
+*******************************************************************************/
 static void spi_transfer_it_full_duplex_rxonly_callback(spi_transfer_t *transfer)
 {
 	uint16_t SR_state = *SPI_SR[transfer->channel];
@@ -759,14 +1128,79 @@ static void spi_transfer_it_full_duplex_rxonly_callback(spi_transfer_t *transfer
 	}
 }
 
+/******************************************************************************
+* Function: spi_transfer_it_full_duplex_rxonly()
+*//**
+* \b Description:
+*
+*	Registers the rxonly callback and makes a safe copy of the transfer structure.
+*
+* PRE-CONDITION: The rx buffer is non-NULL and of non-zero length
+
+* POST-CONDITION: The rxonly callback has been mapped to the right spi device
+* POST-CONDITION: The RXNEIE interrupt has been enabled
+*
+* @param		transfer a pointer to the transfer structure containing all relevant
+* 					information for the transmission
+* @return 		void
+*
+* \b Example:
+*	Called by spi_transfer_it when RXONLY == 1
+*
+*
+* @see spi_transfer_it
+* @see spi_transfer_it_bidir
+* @see spi_transfer_it_full_duplex
+* @see spi_irq_handler
+* <br><b> - CHANGE HISTORY - </b>
+*
+* <table align="left" style="width:800px">
+* <tr><td> Date       </td><td> Software Version </td><td> Initials </td><td> Description </td></tr>
+* </table><br><br>
+* <hr>
+*******************************************************************************/
 static void spi_transfer_it_full_duplex_rxonly(spi_transfer_t *transfer)
 {
-	spi_interrupt_transfers[transfer->channel] = *transfer;
+	assert(transfer->rx_buffer != NULL && transfer->rx_length != 0);
 	spi_interrupt_callbacks[transfer->channel] = spi_transfer_it_full_duplex_rxonly_callback;
 	*SPI_CR2[transfer->channel] |= SPI_CR2_RXNEIE_Msk;
 	*SPI_CR1[transfer->channel] |= SPI_CR1_SPE_Msk;
 }
 
+/******************************************************************************
+* Function: spi_transfer_it_full_duplex_callback()
+*//**
+* \b Description:
+*
+*	A callback function called by the irq handler which manages the reception and
+*	transmission of a single data unit when the spi has two data lines.
+*
+* PRE-CONDITION: (Soft Assert) The rx_buffer is of non-zero length
+* PRE-CONDITION: (Soft Assert) The tx_buffer is of non-zero length
+*
+* POST-CONDITION: A single data unit has been received and another sent
+* OR
+* POST-CONDITION: The communication has been shut down and the slave released
+*
+* @param		transfer a pointer to the transfer structure containing all relevant
+* 					information for the transmission
+* @return 		void
+*
+* \b Example:
+*	Called by the irq_handler if it's mapped
+*
+*
+* @see spi_transfer_it
+* @see spi_transfer_it_bidir
+* @see spi_transfer_it_full_duplex_rxonly
+* @see spi_irq_handler
+* <br><b> - CHANGE HISTORY - </b>
+*
+* <table align="left" style="width:800px">
+* <tr><td> Date       </td><td> Software Version </td><td> Initials </td><td> Description </td></tr>
+* </table><br><br>
+* <hr>
+*******************************************************************************/
 static void spi_transfer_it_full_duplex_callback(spi_transfer_t *transfer)
 {
 	uint16_t SR_state = *SPI_SR[transfer->channel];
@@ -791,15 +1225,76 @@ static void spi_transfer_it_full_duplex_callback(spi_transfer_t *transfer)
 	}
 }
 
+/******************************************************************************
+* Function: spi_transfer_it_full_duplex()
+*//**
+* \b Description:
+*
+*	Maps the correct callback to the callback array and enables the correct
+*	interrupt flags
+*
+* PRE-CONDITION: None
+*
+* POST-CONDITION: The reception and transmission (RXNEIE and TXEIE) interrupts have
+* 					been enabled
+*
+* @param		transfer a pointer to the transfer structure containing all relevant
+* 					information for the transmission
+* @return 		void
+*
+* \b Example:
+*	Called by spi_transfer_it when full duplex configuration is selected
+*
+*
+* @see spi_transfer_it
+* @see spi_transfer_it_bidir
+* @see spi_transfer_it_full_duplex_rxonly
+* @see spi_irq_handler
+* <br><b> - CHANGE HISTORY - </b>
+*
+* <table align="left" style="width:800px">
+* <tr><td> Date       </td><td> Software Version </td><td> Initials </td><td> Description </td></tr>
+* </table><br><br>
+* <hr>
+*******************************************************************************/
 static void spi_transfer_it_full_duplex(spi_transfer_t *transfer)
 {
-	spi_interrupt_transfers[transfer->channel] = *transfer;
 	spi_interrupt_callbacks[transfer->channel] = spi_transfer_it_full_duplex_callback;
 	*SPI_CR2[transfer->channel] |= SPI_CR2_TXEIE_Msk | SPI_CR2_RXNEIE_Msk;
 	*SPI_CR1[transfer->channel] |= SPI_CR1_SPE_Msk;
 }
 
-
+/******************************************************************************
+* Function: spi_select_slave()
+*//**
+* \b Description:
+*
+*	Static function used to select a slave (whether it is active high or low) from
+*	within transfer functions
+*
+* PRE-CONDITION: The GPIO pin for controlling the slave has been correctly configured
+*
+* POST-CONDITION: The GPIO output is at the correct level to select the slave
+*
+* @param		transfer a pointer to the transfer structure containing all relevant
+* 					information for the transmission
+* @return 		void
+*
+* \b Example:
+*	Called by spi_transfer and spi_transfer_it in master mode before transmission
+*	begins
+*
+*
+* @see spi_release_slave
+* @see spi_transfer
+* @see spi_transfer_it
+* <br><b> - CHANGE HISTORY - </b>
+*
+* <table align="left" style="width:800px">
+* <tr><td> Date       </td><td> Software Version </td><td> Initials </td><td> Description </td></tr>
+* </table><br><br>
+* <hr>
+*******************************************************************************/
 static void spi_select_slave(spi_transfer_t *transfer)
 {
 	if (transfer->ss_polarity == SS_ACTIVE_LOW)
@@ -812,6 +1307,36 @@ static void spi_select_slave(spi_transfer_t *transfer)
 	}
 }
 
+/******************************************************************************
+* Function: spi_release_slave()
+*//**
+* \b Description:
+*
+*	Static function used to release a slave (whether it is active high or low) from
+*	within transfer functions
+*
+* PRE-CONDITION: The GPIO pin for controlling the slave has been correctly configured
+*
+* POST-CONDITION: The GPIO output is at the correct level to release the slave
+*
+* @param		transfer a pointer to the transfer structure containing all relevant
+* 					information for the transmission
+* @return 		void
+*
+* \b Example:
+*	Called by spi_transfer and spi_transfer_it and callbacks in master mode
+*
+*
+* @see spi_select_slave
+* @see spi_transfer
+* @see spi_transfer_it
+* <br><b> - CHANGE HISTORY - </b>
+*
+* <table align="left" style="width:800px">
+* <tr><td> Date       </td><td> Software Version </td><td> Initials </td><td> Description </td></tr>
+* </table><br><br>
+* <hr>
+*******************************************************************************/
 static void spi_release_slave(spi_transfer_t *transfer)
 {
 	if (transfer->ss_polarity == SS_ACTIVE_LOW)
@@ -824,6 +1349,37 @@ static void spi_release_slave(spi_transfer_t *transfer)
 	}
 }
 
+/******************************************************************************
+* Function: spi_configure_clock()
+*//**
+* \b Description:
+*
+*	Static function used to configure the clock phase and polarity to be used
+*	during the spi communication
+*
+* PRE-CONDITION: the clock_polarity member of the transfer structure is valid
+* PRE-CONDITION: the clock_phase member of the transfer structure is valid
+*
+* POST-CONDITION: The CR1 registers now contain the desired clock configuration
+*
+* @param		transfer a pointer to the transfer structure containing all relevant
+* 					information for the transmission
+* @return 		void
+*
+* \b Example:
+*	Called by spi_transfer and spi_transfer_it and callbacks
+*
+*
+* @see spi_configure_data_frame
+* @see spi_transfer
+* @see spi_transfer_it
+* <br><b> - CHANGE HISTORY - </b>
+*
+* <table align="left" style="width:800px">
+* <tr><td> Date       </td><td> Software Version </td><td> Initials </td><td> Description </td></tr>
+* </table><br><br>
+* <hr>
+*******************************************************************************/
 static void spi_configure_clock(spi_transfer_t *transfer)
 {
 	if (transfer->clock_polarity == ACTIVE_HIGH)
@@ -846,6 +1402,37 @@ static void spi_configure_clock(spi_transfer_t *transfer)
 	}
 }
 
+/******************************************************************************
+* Function: spi_configure_data_frame()
+*//**
+* \b Description:
+*
+*	Static function used to configure the the data size and bit format to be used
+*	during the current transfer
+*
+* PRE-CONDITION: the data_format member of the transfer structure is valid
+* PRE-CONDITION: the bit_format member of the transfer structure is valid
+*
+* POST-CONDITION: The CR1 registers now contain the desired data format configuration
+*
+* @param		transfer a pointer to the transfer structure containing all relevant
+* 					information for the transmission
+* @return 		void
+*
+* \b Example:
+*	Called by spi_transfer and spi_transfer_it and callbacks
+*
+*
+* @see spi_configure_clock
+* @see spi_transfer
+* @see spi_transfer_it
+* <br><b> - CHANGE HISTORY - </b>
+*
+* <table align="left" style="width:800px">
+* <tr><td> Date       </td><td> Software Version </td><td> Initials </td><td> Description </td></tr>
+* </table><br><br>
+* <hr>
+*******************************************************************************/
 static void spi_configure_data_frame(spi_transfer_t *transfer)
 {
 	if (transfer->data_format == SPI_DATA_8BIT)
